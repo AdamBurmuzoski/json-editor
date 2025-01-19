@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="icon"
+    href="https://cdn.glitch.global/5992cd3c-974e-4bde-965e-fc6cec2dcd36/brackets%20(1).png?v=1686711216288"
+    type="image/x-icon">
+  <title>JSON Editor - Adam Burmuzoski</title>
+  <style>
+    @font-face {
+      font-family: 'AgeoThin';
+      src: url(https://cdn.glitch.global/5992cd3c-974e-4bde-965e-fc6cec2dcd36/Ageo-Thin.ttf?v=1686703029478);
+    }
+
+    @font-face {
+      font-family: 'AgeoRegular';
+      src: url(https://cdn.glitch.global/5992cd3c-974e-4bde-965e-fc6cec2dcd36/Ageo-Regular.ttf?v=1686702995720);
+    }
+
+
+    body {
+      background-color: rgb(20, 20, 20);
+    }
+
+    ul {
+      margin-left: 20px;
+      color: white;
+      margin-bottom: 10px;
+      list-style-type: none;
+      /*If you want bullet points to be included, erase list-style-type*/
+    }
+
+    .key {
+      color: rgb(62, 108, 213);
+    }
+
+    .value {
+      color: rgb(217, 79, 25);
+    }
+
+    .value.editable {
+      border: 1px solid white;
+      padding: 2px;
+      background-color: rgb(40, 40, 40);
+      color: white;
+    }
+
+    textarea {
+      background-color: rgb(40, 40, 40);
+      color: white;
+      height: 500px;
+      width: 467px;
+      font-family: 'AgeoRegular', sans-serif;
+
+    }
+
+    button {
+      background-color: rgb(62, 108, 213);
+      color: white;
+      font-family: 'AgeoRegular', sans-serif;
+      transition: transform 0.2s;
+    }
+
+    button:active {
+      transform: scale(0.9);
+    }
+
+    button:hover {
+      background-color: #444;
+      transform: scale(1.03);
+      cursor: pointer;
+    }
+
+    ul,
+    li {
+      color: white;
+      font-family: 'AgeoRegular', sans-serif;
+    }
+
+    h1 {
+      font-family: 'AgeoThin', sans-serif;
+      color: rgb(217, 79, 25);
+    }
+
+    h2 {
+      font-family: 'AgeoThin', sans-serif;
+      color: rgb(217, 79, 25);
+      font-size: 20px;
+    }
+
+    .icon {
+      font-size: 25px;
+    }
+
+    .cursor {
+      border-right: 0.2rem solid #777;
+      animation: blink 1s infinite;
+    }
+
+    @keyframes blink {
+
+      0%,
+      100% {
+        opacity: 1;
+      }
+
+      50% {
+        opacity: 0;
+      }
+    }
+
+    .loader {
+      /*Spinner for JSON File Loading*/
+      border: 8px #f3f3f3;
+      border-radius: 50%;
+      border-top: 6px solid rgb(62, 108, 213);
+      width: 50px;
+      height: 50px;
+      animation: spin 2s linear infinite;
+    }
+
+    @keyframes spin {
+      0% {
+        transform: rotate(0deg);
+      }
+
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <h1>JSON Editor by Adam Burmuzoski</h1>
+  <div class="container">
+    <h2>Functionalities such as
+      <span class="txt-type" data-wait="3000" data-words='["Reformatting", "Editing", "Displaying"]'></span><span
+        class="cursor"></span>
+      JSON Files
+    </h2>
+  </div>
+
+  <input type="file" id="fileInput" accept=".json" onchange="uploadFile()" />
+  <button onclick="convertToTree()">Convert to Tree</button>
+  <button onclick="downloadJSON()">Download JSON</button>
+  <div id="spinner" style="display: none;">
+    <div class="loader"></div>
+  </div>
+  <div id="jsonTree"></div><br>
+  <textarea id="jsonInput" rows="10" cols="50" readonly style="user-select: none;"></textarea>
+
+
+  <script>
+    let originalJson;  // Store the original JSON object
+
+    function uploadFile() {//Upload File Function
+      const fileInput = document.getElementById('fileInput');
+      const file = fileInput.files[0];
+      const reader = new FileReader();
+      originalFileName = file.name;
+
+      //Show the spinner
+      document.getElementById('spinner').style.display = 'block';
+
+      reader.onload = function (event) {
+        const fileContent = event.target.result;
+        document.getElementById('jsonInput').value = fileContent;
+
+        //Hide the spinner
+        document.getElementById('spinner').style.display = 'none';
+      };
+      reader.readAsText(file);
+    }
+
+    function displayJsonTree(data, element, path = '') {
+      if (typeof data === 'object' && !Array.isArray(data)) {
+        const ul = document.createElement('ul');
+        ul.dataset.type = 'object';
+        ul.style.display = '';  // Start with all elements expanded.
+        const icon = document.createElement('span');
+        icon.textContent = '▾ ';  // Use the down-pointing triangle for expanded objects.
+        icon.className = 'icon';
+        icon.style.userSelect = 'none';
+        icon.style.cursor = 'pointer';
+        icon.addEventListener('click', function () {
+          if (ul.style.display === '') {
+            ul.style.display = 'none';
+            icon.textContent = '▸ ';  // Use the right-pointing triangle for collapsed objects.
+          } else {
+            ul.style.display = '';
+            icon.textContent = '▾ ';  // Use the down-pointing triangle for expanded objects.
+          }
+        });
+
+        for (const key in data) {
+          const li = document.createElement('li');
+          const keySpan = document.createElement('span');
+          keySpan.textContent = key + ': ';
+          keySpan.className = 'key';
+          li.appendChild(keySpan);
+          displayJsonTree(data[key], li, path ? `${path}.${key}` : key);
+          ul.appendChild(li);
+        }
+
+        element.appendChild(icon);
+        element.appendChild(ul);
+      } else if (Array.isArray(data)) {
+        const ul = document.createElement('ul');
+        ul.dataset.type = 'array';
+        ul.style.display = '';  // Start with all elements expanded.
+        const icon = document.createElement('span');
+        icon.textContent = '▾ ';  // Use the down-pointing triangle for expanded arrays.
+        icon.className = 'icon';
+        icon.style.userSelect = 'none';
+        icon.style.cursor = 'pointer';
+        icon.addEventListener('click', function () {
+          if (ul.style.display === '') {
+            ul.style.display = 'none';
+            icon.textContent = '▸ ';  // Use the right-pointing triangle for collapsed arrays.
+          } else {
+            ul.style.display = '';
+            icon.textContent = '▾ ';  // Use the down-pointing triangle for expanded arrays.
+          }
+        });
+
+        data.forEach((item, index) => {
+          const li = document.createElement('li');
+          displayJsonTree(item, li, `${path}[${index}]`);
+          ul.appendChild(li);
+        });
+
+        element.appendChild(icon);
+        element.appendChild(ul);
+      } else {
+        const span = document.createElement('span');
+        span.textContent = data;
+        span.className = 'value';
+        span.dataset.path = path;
+        span.addEventListener('click', function () {
+          makeValueEditable(span);
+        });
+        element.appendChild(span);
+      }
+    }
+
+
+    function convertToTree() {
+      const jsonInput = document.getElementById('jsonInput').value;
+      let json;
+      try {
+        json = JSON.parse(jsonInput);
+      } catch (error) {
+        console.error('Invalid JSON format:', error);
+        return;
+      }
+
+      originalJson = JSON.parse(jsonInput);
+      const jsonTree = document.getElementById('jsonTree');
+      jsonTree.innerHTML = '';
+      displayJsonTree(json, jsonTree);
+    }
+
+    function makeValueEditable(element) {//Editing the values within the tree
+      const currentValue = element.textContent;
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.value = currentValue;
+      input.className = 'value editable';
+
+      const updateValue = function () {
+        const newValue = input.value;
+        const path = element.dataset.path;
+        let obj = originalJson;
+        const parts = path.split(/\.|\[|\]\./).filter(Boolean);
+        for (let i = 0; i < parts.length - 1; i++) {
+          const part = parts[i].includes(']') ? parseInt(parts[i]) : parts[i];
+          obj = obj[part];
+        }
+        const lastPart = parts[parts.length - 1].includes(']') ? parseInt(parts[parts.length - 1]) : parts[parts.length - 1];
+        obj[lastPart] = newValue;
+
+        const span = document.createElement('span');
+        span.textContent = newValue;
+        span.className = 'value';
+        span.dataset.path = element.dataset.path;
+        span.addEventListener('click', function () {
+          makeValueEditable(span);
+        });
+        input.parentNode.replaceChild(span, input);
+      };
+
+      input.addEventListener('blur', updateValue);
+      input.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter') {
+          updateValue();
+        }
+      });
+
+      element.parentNode.replaceChild(input, element);
+      input.focus();
+    }
+
+    function downloadJSON() {//Downloading the updated JSON File
+      let dataStr = JSON.stringify(originalJson, null, 2);
+      dataStr = dataStr.replace(/(\n\s*)/g, '\n');
+      let blob = new Blob([dataStr], { type: "application/json" });
+      let url = URL.createObjectURL(blob);
+      const downloadAnchorNode = document.createElement('a');
+      downloadAnchorNode.setAttribute("href", url);
+      downloadAnchorNode.setAttribute("download", originalFileName);
+      document.body.appendChild(downloadAnchorNode);
+      downloadAnchorNode.click();
+      downloadAnchorNode.remove();
+    }
+
+
+
+
+    class TypeWriter {//For the interactive Subheading
+      constructor(txtElement, words, wait = 3000) {
+        this.txtElement = txtElement;
+        this.words = words;
+        this.txt = '';
+        this.wordIndex = 0;
+        this.wait = parseInt(wait, 10);
+        this.type();
+        this.isDeleting = false;
+      }
+      type() {
+        // Current index of word
+        const current = this.wordIndex % this.words.length;
+        // Get full text of current word
+        const fullTxt = this.words[current];
+
+        // Check if deleting
+        if (this.isDeleting) {
+          // Remove char
+          this.txt = fullTxt.substring(0, this.txt.length - 1);
+        } else {
+          // Add char
+          this.txt = fullTxt.substring(0, this.txt.length + 1);
+        }
+
+        // Insert txt into element
+        this.txtElement.innerHTML = `<span class="txt">${this.txt}</span>`;
+
+        // Initial Type Speed
+        let typeSpeed = 300;
+
+        if (this.isDeleting) {
+          typeSpeed /= 2;
+        }
+
+        // If word is complete
+        if (!this.isDeleting && this.txt === fullTxt) {
+          // Make pause at end
+          typeSpeed = this.wait;
+          // Set delete to true
+          this.isDeleting = true;
+        } else if (this.isDeleting && this.txt === '') {
+          this.isDeleting = false;
+          // Move to next word
+          this.wordIndex++;
+          // Pause before start typing
+          typeSpeed = 500;
+        }
+
+        setTimeout(() => this.type(), typeSpeed);
+      }
+    }
+    // Init On DOM Load
+    document.addEventListener('DOMContentLoaded', init);
+
+    // Init App
+    function init() {
+      const txtElement = document.querySelector('.txt-type');
+      const words = JSON.parse(txtElement.getAttribute('data-words'));
+      const wait = txtElement.getAttribute('data-wait');
+      // Init TypeWriter
+      new TypeWriter(txtElement, words, wait);
+    }
+  </script>
+</body>
+
+</html>
