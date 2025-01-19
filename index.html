@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="styles.css">
+  <script src="script.js"></script>
+  <link rel="icon" href="https://cdn.glitch.global/5992cd3c-974e-4bde-965e-fc6cec2dcd36/brackets%20(1).png?v=1686711216288" type="image/x-icon">
+  <title>JSON Editor - Adam Burmuzoski</title>
+</head>
+
+<body>
+  <h1>JSON Editor by Adam Burmuzoski</h1>
+  <div class="container">
+    <h2>
+      Functionalities such as 
+      <span class="txt-type" data-wait="3000" data-words='["Reformatting", "Editing", "Displaying"]'></span>
+      <span class="cursor"></span>
+      JSON Files
+    </h2>
+  </div>
+
+  <input type="file" id="fileInput" accept=".json" onchange="uploadFile()" />
+  <button onclick="convertToTree()">Convert to Tree</button>
+  <button onclick="downloadJSON()">Download JSON</button>
+  <div id="spinner" style="display: none;">
+    <div class="loader"></div>
+  </div>
+  <div id="jsonTree"></div><br>
+  <textarea id="jsonInput" rows="10" cols="50" readonly style="user-select: none;"></textarea>
+
+  
+</body>
+
+</html>

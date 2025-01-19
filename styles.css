@@ -1,0 +1,113 @@
+@font-face {
+    font-family: 'AgeoThin';
+    src: url(https://cdn.glitch.global/5992cd3c-974e-4bde-965e-fc6cec2dcd36/Ageo-Thin.ttf?v=1686703029478);
+  }
+  
+  @font-face {
+    font-family: 'AgeoRegular';
+    src: url(https://cdn.glitch.global/5992cd3c-974e-4bde-965e-fc6cec2dcd36/Ageo-Regular.ttf?v=1686702995720);
+  }
+  
+  body {
+    background-color: rgb(20, 20, 20);
+  }
+  
+  ul {
+    margin-left: 20px;
+    color: white;
+    margin-bottom: 10px;
+    list-style-type: none;
+  }
+  
+  .key {
+    color: rgb(62, 108, 213);
+  }
+  
+  .value {
+    color: rgb(217, 79, 25);
+  }
+  
+  .value.editable {
+    border: 1px solid white;
+    padding: 2px;
+    background-color: rgb(40, 40, 40);
+    color: white;
+  }
+  
+  textarea {
+    background-color: rgb(40, 40, 40);
+    color: white;
+    height: 500px;
+    width: 467px;
+    font-family: 'AgeoRegular', sans-serif;
+  }
+  
+  button {
+    background-color: rgb(62, 108, 213);
+    color: white;
+    font-family: 'AgeoRegular', sans-serif;
+    transition: transform 0.2s;
+  }
+  
+  button:active {
+    transform: scale(0.9);
+  }
+  
+  button:hover {
+    background-color: #444;
+    transform: scale(1.03);
+    cursor: pointer;
+  }
+  
+  ul, li {
+    color: white;
+    font-family: 'AgeoRegular', sans-serif;
+  }
+  
+  h1 {
+    font-family: 'AgeoThin', sans-serif;
+    color: rgb(217, 79, 25);
+  }
+  
+  h2 {
+    font-family: 'AgeoThin', sans-serif;
+    color: rgb(217, 79, 25);
+    font-size: 20px;
+  }
+  
+  .icon {
+    font-size: 25px;
+  }
+  
+  .cursor {
+    border-right: 0.2rem solid #777;
+    animation: blink 1s infinite;
+  }
+  
+  @keyframes blink {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0;
+    }
+  }
+  
+  .loader {
+    border: 8px #f3f3f3;
+    border-radius: 50%;
+    border-top: 6px solid rgb(62, 108, 213);
+    width: 50px;
+    height: 50px;
+    animation: spin 2s linear infinite;
+  }
+  
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+  
