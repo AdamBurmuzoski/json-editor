@@ -52,4 +52,9 @@ None. This is a **standalone** project using only **HTML**, **CSS**, and **JavaS
 2. Open the `index.html` file in your browser.
 3. Start using the JSON Editor.
 
+---
+
+## License
+
+© Adam Burmuzoski. All rights reserved.
 
